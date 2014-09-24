@@ -16,11 +16,18 @@
 
 package com.vineo.model;
 
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.FetchProfile;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "recipe_ingredient")
+@Table(name = "harmony")
 @AssociationOverrides({
         @AssociationOverride(name = "pk.recipe", joinColumns = @JoinColumn(name = "recipe_id", insertable = false, updatable = false)),
         @AssociationOverride(name = "pk.wine", joinColumns = @JoinColumn(name = "wine_id", insertable = false, updatable = false))})
@@ -38,7 +45,9 @@ public class Harmony implements Serializable {
 
     @EmbeddedId
     private final HarmonyId pk;
-    private String comment;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "harmony", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Opinion> opinions;
 
     //==================================================================================================================
     // Constructors
@@ -47,15 +56,12 @@ public class Harmony implements Serializable {
     public Harmony() {
         super();
         this.pk = new HarmonyId();
+        this.opinions = new ArrayList<>();
     }
 
     //==================================================================================================================
     // Getters
     //==================================================================================================================
-
-    public String getComment() {
-        return comment;
-    }
 
     public Wine getWine() {
         return this.pk.getWine();
@@ -65,10 +71,13 @@ public class Harmony implements Serializable {
         return this.pk.getRecipe();
     }
 
+    public List<Opinion> getOpinions() {
+        return opinions;
+    }
+
     //==================================================================================================================
     // Setters
     //==================================================================================================================
-
 
     public void setWine(final Wine wine) {
         this.pk.setWine(wine);
@@ -78,8 +87,17 @@ public class Harmony implements Serializable {
         this.pk.setRecipe(recipe);
     }
 
-
-    public void setComment(final String comment) {
-        this.comment = comment;
+    public void setOpinions(final List<Opinion> opinions) {
+        this.opinions = opinions;
     }
+
+    //==================================================================================================================
+    // Public
+    //==================================================================================================================
+
+    public void addOpinion(final Opinion opinion) {
+        opinion.setHarmony(this);
+        this.opinions.add(opinion);
+    }
+
 }

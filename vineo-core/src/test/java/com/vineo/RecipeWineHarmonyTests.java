@@ -19,6 +19,7 @@ package com.vineo;
 import com.vineo.dao.RecipeRepository;
 import com.vineo.dao.WineRepository;
 import com.vineo.model.Harmony;
+import com.vineo.model.Opinion;
 import com.vineo.model.Recipe;
 import com.vineo.model.Wine;
 import org.junit.Before;
@@ -29,13 +30,13 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-public class RecipeWineAssociationTests {
+public class RecipeWineHarmonyTests {
     //==================================================================================================================
     // Attributes
     //==================================================================================================================
@@ -58,7 +59,7 @@ public class RecipeWineAssociationTests {
 
 
     @Test
-    public void testSaveSuccessfullyHarmony() throws Exception {
+    public void shouldSaveSuccessfullyHarmony() throws Exception {
         final Recipe recipe = new Recipe("moussaka");
         final Recipe savedMoussaka = this.recipeRepository.save(recipe);
 
@@ -74,5 +75,34 @@ public class RecipeWineAssociationTests {
         final Harmony harmony = associatedWines.get(0);
         assertThat(harmony.getRecipe()).isEqualTo(savedMoussaka);
         assertThat(harmony.getWine()).isEqualTo(savedWine);
+    }
+
+    @Test
+    public void shouldAddSuccessfullyAnOpinionToAnHarmony() {
+        final Recipe recipe = new Recipe("moussaka");
+        final Recipe savedRecipe = this.recipeRepository.save(recipe);
+
+        final Wine minervois = new Wine("Minervois");
+        final Wine savedMinervois = this.wineRepository.save(minervois);
+
+        savedRecipe.addWine(savedMinervois);
+
+        this.recipeRepository.save(savedRecipe);
+
+        final Recipe loadedRecipe = this.recipeRepository.findOne(savedRecipe.getId());
+        final Optional<Harmony> harmonyFor = loadedRecipe.getHarmonyFor(savedMinervois);
+        assertThat(harmonyFor.isPresent());
+
+        final Harmony harmony = harmonyFor.get();
+        final Opinion excellent = new Opinion(4, "Excellent");
+        harmony.addOpinion(excellent);
+
+        this.recipeRepository.save(loadedRecipe);
+
+        final Recipe moussaka = this.recipeRepository.findOne(loadedRecipe.getId());
+        final List<Opinion> opinions = moussaka.getHarmonyFor(minervois).get().getOpinions();
+        assertThat(opinions.size()).isEqualTo(1);
+        assertThat(opinions.get(0).getStars()).isEqualTo(4);
+        assertThat(opinions.get(0).getComment()).isEqualTo("Excellent");
     }
 }

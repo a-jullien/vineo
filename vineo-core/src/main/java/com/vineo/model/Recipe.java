@@ -23,9 +23,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("UnusedDeclaration")
 @Entity
+@Table(name = "recipe")
 public class Recipe implements Serializable {
 
     //==================================================================================================================
@@ -101,10 +103,13 @@ public class Recipe implements Serializable {
         this.wines.add(harmony);
     }
 
+    public Optional<Harmony> getHarmonyFor(final Wine wine) {
+        return this.wines.stream().filter((harmony) -> harmony.getWine().equals(wine)).findAny();
+    }
+
     //==================================================================================================================
     // Override
     //==================================================================================================================
-
 
     @Override
     public boolean equals(final Object o) {
