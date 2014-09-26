@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.vineo;
+package com.vineo.dao;
 
+import com.vineo.Application;
 import com.vineo.dao.RecipeRepository;
 import com.vineo.dao.WineRepository;
 import com.vineo.model.Harmony;
@@ -60,11 +61,8 @@ public class RecipeWineHarmonyTests {
 
     @Test
     public void shouldSaveSuccessfullyHarmony() throws Exception {
-        final Recipe recipe = new Recipe("moussaka");
-        final Recipe savedMoussaka = this.recipeRepository.save(recipe);
-
-        final Wine wine = new Wine("Minervois");
-        final Wine savedWine = this.wineRepository.save(wine);
+        final Recipe savedMoussaka = this.recipeRepository.save(new Recipe("moussaka"));
+        final Wine savedWine = this.wineRepository.save(new Wine("Minervois"));
         savedMoussaka.addWine(savedWine);
 
         this.recipeRepository.save(savedMoussaka);
@@ -79,11 +77,8 @@ public class RecipeWineHarmonyTests {
 
     @Test
     public void shouldAddSuccessfullyAnOpinionToAnHarmony() {
-        final Recipe recipe = new Recipe("moussaka");
-        final Recipe savedRecipe = this.recipeRepository.save(recipe);
-
-        final Wine minervois = new Wine("Minervois");
-        final Wine savedMinervois = this.wineRepository.save(minervois);
+        final Recipe savedRecipe = this.recipeRepository.save(new Recipe("moussaka"));
+        final Wine savedMinervois = this.wineRepository.save(new Wine("Minervois"));
 
         savedRecipe.addWine(savedMinervois);
 
@@ -100,7 +95,8 @@ public class RecipeWineHarmonyTests {
         this.recipeRepository.save(loadedRecipe);
 
         final Recipe moussaka = this.recipeRepository.findOne(loadedRecipe.getId());
-        final List<Opinion> opinions = moussaka.getHarmonyFor(minervois).get().getOpinions();
+        final Optional<Harmony> harmonyForMinervois = moussaka.getHarmonyFor(savedMinervois);
+        final List<Opinion> opinions = harmonyForMinervois.get().getOpinions();
         assertThat(opinions.size()).isEqualTo(1);
         assertThat(opinions.get(0).getStars()).isEqualTo(4);
         assertThat(opinions.get(0).getComment()).isEqualTo("Excellent");

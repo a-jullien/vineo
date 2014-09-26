@@ -18,12 +18,14 @@ package com.vineo.controller;
 
 import com.vineo.dao.WineRepository;
 import com.vineo.model.Wine;
+import com.vineo.model.WinesDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -51,16 +53,44 @@ public class WineController {
     // Public
     //==================================================================================================================
 
-    @RequestMapping("/wines")
-    public Collection<Wine> wines() {
+    /**
+     * Lists all available wines
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/wines", produces = MediaType.APPLICATION_JSON_VALUE)
+    public WinesDescriptor wines() {
         final Stream<Wine> stream = StreamSupport.stream(this.wineRepository.findAll().spliterator(), false);
 
-        return stream.collect(Collectors.toList());
+        final List<Wine> wines = stream.collect(Collectors.toList());
+        return new WinesDescriptor(wines);
     }
 
-    @RequestMapping("/wines/{wineId}")
-    public Wine getWineById(@PathVariable final Long wineId) {
-        return this.wineRepository.findOne(wineId);
+    /**
+     * Returns a wine identified the specified identifier
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/wines/{wineId}")
+    public ResponseEntity<Wine> getWineById(@PathVariable final Long wineId) {
+        final Wine wine = this.wineRepository.findOne(wineId);
+        if (wine == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(wine, HttpStatus.OK);
+        }
     }
 
+    /**
+     * Save or update a wine
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/wines")
+    public ResponseEntity<Wine> saveOrUpdate(@RequestBody final Wine wine) {
+        final Wine savedWine = this.wineRepository.save(wine);
+        return new ResponseEntity<>(savedWine, HttpStatus.OK);
+    }
+
+    /**
+     * Delete a wine identified by its identifier
+     */
+    @RequestMapping(method = RequestMethod.DELETE, value = "/wines/{wineId}")
+    public void deleteWine(@PathVariable final Long wineId) {
+        this.wineRepository.delete(wineId);
+    }
 }

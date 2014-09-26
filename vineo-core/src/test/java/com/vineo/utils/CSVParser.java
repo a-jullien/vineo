@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vineo;
+package com.vineo.utils;
 
 import com.vineo.model.Harmony;
 import com.vineo.model.Recipe;

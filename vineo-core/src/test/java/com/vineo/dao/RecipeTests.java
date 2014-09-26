@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.vineo;
+package com.vineo.dao;
 
-import com.vineo.dao.WineRepository;
-import com.vineo.model.Wine;
-import com.vineo.model.WineCategory;
+import com.vineo.Application;
+import com.vineo.dao.RecipeRepository;
+import com.vineo.model.Recipe;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,18 +30,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
-public class WineTests {
-
+public class RecipeTests {
     //==================================================================================================================
     // Attributes
     //==================================================================================================================
 
+
     @Autowired
-    private WineRepository wineRepository;
+    private RecipeRepository recipeRepository;
 
     @Before
     public void setUp() throws Exception {
-        this.wineRepository.deleteAll();
+        this.recipeRepository.deleteAll();
     }
 
     //==================================================================================================================
@@ -49,37 +49,35 @@ public class WineTests {
     //==================================================================================================================
 
     @Test
-	public void shouldSaveSuccessfullyAWine() {
-        final Wine condrieu = new Wine("condrieu");
+    public void shouldSaveSuccessfullyARecipe() {
+        final Recipe recipe = new Recipe("moussaka");
+        final Recipe savedMoussaka = this.recipeRepository.save(recipe);
+        assertThat(savedMoussaka).isNotNull();
+        assertThat(savedMoussaka.getId()).isGreaterThan(0);
 
-        final Wine savedWine = this.wineRepository.save(condrieu);
-
-        assertThat(savedWine.getId()).isNotNull();
-        assertThat(savedWine.getId()).isGreaterThan(0);
-
-        assertThat(this.wineRepository.count()).isEqualTo(1);
+        assertThat(this.recipeRepository.count()).isEqualTo(1);
     }
 
     @Test
-    public void shouldDeleteSuccessfullyAWine() {
-        final Wine condrieu = new Wine("condrieu");
-        final Wine savedWine = wineRepository.save(condrieu);
-        assertThat(this.wineRepository.count()).isEqualTo(1);
+    public void shouldDeleteSuccessfullyARecipe() {
+        final Recipe recipe = new Recipe("moussaka");
+        final Recipe savedMoussaka = this.recipeRepository.save(recipe);
+        assertThat(this.recipeRepository.count()).isEqualTo(1);
 
-        this.wineRepository.delete(savedWine);
-        assertThat(this.wineRepository.count()).isEqualTo(0);
+        this.recipeRepository.delete(savedMoussaka);
+        assertThat(this.recipeRepository.count()).isEqualTo(0);
     }
 
     @Test
-    public void shouldUpdateSuccessfullyAWine() {
-        final Wine condrieu = new Wine("condrieu");
-        final Wine savedWine = wineRepository.save(condrieu);
-        assertThat(this.wineRepository.count()).isEqualTo(1);
-        assertThat(savedWine.getWineCategory()).isNull();
+    public void shouldUpdateSuccessfullyARecipe() {
+        final Recipe recipe = new Recipe("moussaka");
+        final Recipe savedMoussaka = this.recipeRepository.save(recipe);
+        assertThat(this.recipeRepository.count()).isEqualTo(1);
 
-        savedWine.setWineCategory(WineCategory.WHITE);
+        savedMoussaka.setRecipeName("moussaka à la reine");
+        this.recipeRepository.save(savedMoussaka);
 
-        final Wine wineWithCategory = this.wineRepository.save(savedWine);
-        assertThat(wineWithCategory.getWineCategory()).isEqualTo(WineCategory.WHITE);
+        final Recipe updatedRecipe = this.recipeRepository.findOne(savedMoussaka.getId());
+        assertThat(updatedRecipe.getRecipeName()).isEqualTo("moussaka à la reine");
     }
 }

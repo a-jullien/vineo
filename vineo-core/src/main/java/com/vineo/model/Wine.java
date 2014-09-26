@@ -40,7 +40,7 @@ public class Wine implements Serializable {
     //==================================================================================================================
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "wine_id")
     private Long id;
     private String wineName;
@@ -86,6 +86,10 @@ public class Wine implements Serializable {
     //==================================================================================================================
     // Setters
     //==================================================================================================================
+
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     public void setWineName(final String wineName) {
         this.wineName = wineName;
