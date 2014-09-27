@@ -6,4 +6,4 @@ Vineo
 
 A simple experimentation around a collaborative solution using Java, REST and mobility.
 
-**Theme addressed**: Recipe / Wine association
+Theme addressed: **Recipe / Wine association**

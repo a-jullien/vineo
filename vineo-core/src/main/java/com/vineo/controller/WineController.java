@@ -54,7 +54,7 @@ public class WineController {
     //==================================================================================================================
 
     /**
-     * Lists all available wines
+     * Lists all available getRecipes
      */
     @RequestMapping(method = RequestMethod.GET, value = "/wines", produces = MediaType.APPLICATION_JSON_VALUE)
     public WinesDescriptor wines() {
@@ -67,7 +67,7 @@ public class WineController {
     /**
      * Returns a wine identified the specified identifier
      */
-    @RequestMapping(method = RequestMethod.GET, value = "/wines/{wineId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/wines/{wineId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Wine> getWineById(@PathVariable final Long wineId) {
         final Wine wine = this.wineRepository.findOne(wineId);
         if (wine == null) {
@@ -80,7 +80,7 @@ public class WineController {
     /**
      * Save or update a wine
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/wines")
+    @RequestMapping(method = RequestMethod.POST, value = "/wines", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Wine> saveOrUpdate(@RequestBody final Wine wine) {
         final Wine savedWine = this.wineRepository.save(wine);
         return new ResponseEntity<>(savedWine, HttpStatus.OK);
